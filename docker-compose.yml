@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  rag-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - ENVIRONMENT=production
+      - OLLAMA_HOST=http://ollama:11434
+      - LOG_LEVEL=INFO
+    depends_on:
+      - ollama
+    networks:
+      - rag-network
+    volumes:
+      - ./chroma_db:/app/chroma_db
+      - ./logs:/app/logs
+
+  ollama:
+    image: ollama/ollama:latest
+    ports:
+      - "11434:11434"
+    environment:
+      - OLLAMA_MODELS=/models
+    volumes:
+      - ollama_data:/root/.ollama
+    networks:
+      - rag-network
+
+volumes:
+  ollama_data:
+
+networks:
+  rag-network:
+    driver: bridge
